@@ -1,0 +1,221 @@
+### This code will be able to read papers, identify the users typing style, then identify the user 
+### Subtract shared values in dictonary, add up total difference and absoulte value. Give a score, small score = similar, large score = differnt
+### Scores: Average word length, character freq, word freq, avg sentence lngh, matches of sentences that contain the same two words from both texts
+### Gives scores to common vs uncommon, word types, ect
+
+### Make sent len - count ". ", "? ", "! " as punct, (total char - punct) / punct = sent len 
+### Check english words, %of common words, verbs, nouns, adverbs, ect, tense(He/she/They/Them, You/Yall, I/Me/Mine)
+
+from cgi import test
+import json
+from multiprocessing.sharedctypes import Value
+from pickle import NONE
+from re import X
+from tkinter import W
+from typing import Counter, Dict
+    
+def breakup(lines_list):
+    word_list = []
+    text_lines = len(lines_list)
+    times = 0
+    for i in range(text_lines):
+        words = lines_list[times].split()
+        times += 1
+        word_list = word_list + words
+    return word_list
+### Turns a block of text read line by line into one list
+def avglen(inlist):
+    x = 0 
+    all_len = []
+    words_in_list = len(inlist)
+    for i in range(words_in_list):
+        cur_len = len(inlist[x])
+        all_len.append(cur_len)
+        x += 1 
+    len_sum = sum(all_len)
+    avg_len = len_sum / len(inlist)
+    return avg_len
+### Returns the average length of a list
+def char_pre(testlist):
+    all_freq = {}
+    t = 0
+    l = len(testlist)
+    for i in range(l):
+        for i in testlist[t]:
+            if i in all_freq:
+                all_freq[i] += 1
+            else:
+                all_freq[i] = 1
+        t += 1 
+    values = all_freq.values()
+    total = sum(values)
+    per = {}
+    for i in all_freq:
+        per[i] = float(all_freq[i]/total)
+    return per
+### Gives the % of each character in a list
+def combine_zero_dic(word_list, word_list2):
+    wrd_dic_1 = {}
+    wrd_dic_1 = char_pre(word_list)
+    wrd_dic_2 = {}
+    wrd_dic_2 = char_pre(word_list2)
+    wrd_dic_1.update({}.fromkeys(wrd_dic_1,0))
+    wrd_dic_2.update({}.fromkeys(wrd_dic_2,0))
+    full_word_dic = wrd_dic_1 | wrd_dic_2
+    return(full_word_dic)
+### Creates a dictonary contaning keys from two dictonaries, with all values set to 0
+def create_baseline(chrs, full):
+    chrs = char_pre(chrs)
+    a = Counter(chrs)
+    b = Counter(full)
+    add_dict = a + b
+    dict_3 = dict(add_dict)
+    baseline_chrpre = combo | dict_3
+    return baseline_chrpre
+### Returns a dictonary with a % of all characters in a list, it adds keys from another compared list and sets them to 0
+def multiply_dic(new, sample_num):
+    for k,v in new.items():
+        one_over = 1 / sample_num
+        new[k] = v*one_over
+        new_multiplied = new
+    return new_multiplied
+### Divides the values of a dictionary by a sample_num
+def multiply_dic2(new, sample_num):
+    for k,v in new.items():
+        new[k] = v*sample_num
+        new_multiplied = new
+    return new_multiplied
+### multiplies the values of a dictionary by a sample_num
+def create_json(new_json, filename):
+    j = json.dumps(new_json)
+    with open(filename, "w") as f:
+        f.write(j)
+        f.close()
+###Creates new Json
+def create_baseline_dict(dict1, dict2):
+    base = dict1 | dict2
+    base.update({}.fromkeys(base,0))
+    print(base)
+    return(base)
+###Created a dictonary containing keys from 2 dictonaries then sets all values to 0
+def merge_dictionaries(dict1, dict2):
+    merged_dictionary = {}
+
+    for key in dict1:
+        if key in dict2:
+            new_value = dict1[key] + dict2[key]
+        else:
+            new_value = dict1[key]
+
+        merged_dictionary[key] = new_value
+
+    for key in dict2:
+        if key not in merged_dictionary:
+            merged_dictionary[key] = dict2[key]
+    return merged_dictionary
+###Adds 2 dictonaries values 
+def weighted_avg_of_dic(dictweighted, dictnew, weight):
+    weighted = multiply_dic2(dictweighted, weight)
+    added_dic = merge_dictionaries(weighted, dictnew)
+    we_plus_one = weight + 1
+    wavg = multiply_dic(added_dic, we_plus_one)
+    return wavg
+### Gives a new weighted average of two dict
+def wgt_avg_nums(weighted, new, weight):
+    multi = weighted * weight
+    tot = multi + new
+    div = weight + 1 
+    avg = tot / div
+    return avg
+### Gives a weighted average of two numbers 
+
+
+### Takes two dictonaries and a weight for the first and returns a weighted average dictonary
+if(1==2):
+    wrd_len_diff = abs(avglen(breakup(lines)) - avglen(breakup(lines2)))
+    word_list = breakup(lines)
+    word_list2 = breakup(lines2)
+    combo = combine_zero_dic(word_list, word_list2)
+    base = create_baseline(word_list, combo)
+    base2 = create_baseline(word_list2, combo)
+    for key in base:
+        if key in base2:
+            base[key] = base[key] - base2[key]
+        else:
+            pass
+    for i in base:
+        base[i] = abs(base[i])
+    sum_score  = base.values()
+    score = sum(sum_score)*100
+
+    wwl = 1
+    wcp = .05
+    weight_score_wcp = score*wcp 
+    weight_score_wwl = wrd_len_diff*wwl
+
+    fin_weight_score = weight_score_wcp + weight_score_wwl
+    dict_dump = (char_pre(word_list))        
+    filename = "dict_dump_test"
+    create_json(dict_dump, filename)
+    cur_test_dic_dump = json.load(open("C:\Python Projects\dict_dump_test"))
+    sample_num = 100
+    multiply_dic(cur_test_dic_dump, sample_num)
+else:
+    pass
+if(1==2):
+    Dickens_stats = {"word_length" : 1, "s" : 15}
+    j2 = json.dumps(Dickens_stats)
+    with open("Dickens_stats_json", "w") as f:
+        f.write(j2)
+        f.close()
+else:
+    pass
+Dstats_Json = json.load(open("C:\Python Projects\Dickens_stats_json"))
+
+sam_num_json = Dstats_Json["s"]
+print("Press t to test a sample text for identification")
+print("press f to add a F Scott Fitzgerald text")
+part_two_input = input("Press d to add a sapmple for Dickens ")
+
+if(part_two_input == "d"):
+    if(sam_num_json == 0):
+        with open("Text_Reading\Text_Dickens.txt", encoding="utf8") as df:
+            Dickens_text = [line.rstrip('\n') for line in df]
+        first_d_json = char_pre(Dickens_text)
+        create_json(first_d_json, "DCPjson")
+        
+        dic_wl_avg = avglen(breakup(Dickens_text))
+        print("Average word len in text = ")
+        print(dic_wl_avg)
+        
+        dic_new_stat = {"word_length": dic_wl_avg, "s": 1}
+        d1 = json.dumps(dic_new_stat)
+        with open("Dickens_stats_json", "w") as f:
+            f.write(d1)
+            f.close()
+        
+    else:
+        with open("Text_Reading\Text_Dickens.txt", encoding="utf8") as df:
+            Dickens_text = [line.rstrip('\n') for line in df]
+        new_dtext = char_pre(Dickens_text)
+        dweighted_Json = json.load(open("DCPjson"))
+        updated_dic = weighted_avg_of_dic(dweighted_Json, new_dtext, sam_num_json)
+        create_json(updated_dic, "DCPjson")
+        
+        dic_wl_avg = avglen(breakup(Dickens_text))
+        print(dic_wl_avg)
+        d_wrdlenavg_json = Dstats_Json["word_length"]
+        new_wrdlenavg = wgt_avg_nums(d_wrdlenavg_json, dic_wl_avg, sam_num_json)
+        print("New is")
+        print(new_wrdlenavg)
+        sample_plus = sam_num_json +1
+        
+        dic_new_stat = {"word_length": new_wrdlenavg, "s": sample_plus}
+        d1 = json.dumps(dic_new_stat)
+        with open("Dickens_stats_json", "w") as f:
+            f.write(d1)
+            f.close()
+        
+else:
+    pass
+print("done")
