@@ -1,0 +1,433 @@
+### This code will be able to read papers, identify the users typing style, then identify the user 
+### TO DO - Convert all text files to " " , . ; ! ? format
+
+from cgi import test
+import json
+from logging import StringTemplateStyle
+from multiprocessing.sharedctypes import Value
+from pickle import NONE
+from re import X
+from ssl import ALERT_DESCRIPTION_ACCESS_DENIED
+from tkinter import W
+from typing import Counter, Dict
+    
+def breakup(lines_list):
+    word_list = []
+    text_lines = len(lines_list)
+    times = 0
+    for i in range(text_lines):
+        words = lines_list[times].split()
+        times += 1
+        word_list = word_list + words
+    return word_list
+### Turns a block of text read line by line into one list
+def avglen(inlist):
+    x = 0 
+    all_len = []
+    words_in_list = len(inlist)
+    for i in range(words_in_list):
+        cur_len = len(inlist[x])
+        all_len.append(cur_len)
+        x += 1 
+    len_sum = sum(all_len)
+    avg_len = len_sum / len(inlist)
+    return avg_len
+### Returns the average length of a list
+def char_pre(testlist):
+    all_freq = {}
+    t = 0
+    l = len(testlist)
+    for i in range(l):
+        for i in testlist[t]:
+            if i in all_freq:
+                all_freq[i] += 1
+            else:
+                all_freq[i] = 1
+        t += 1 
+    values = all_freq.values()
+    total = sum(values)
+    per = {}
+    for i in all_freq:
+        per[i] = float(all_freq[i]/total)
+    return per
+### Gives the % of each character in a list
+def combine_zero_dic(word_list, word_list2):
+    wrd_dic_1 = {}
+    wrd_dic_1 = char_pre(word_list)
+    wrd_dic_2 = {}
+    wrd_dic_2 = char_pre(word_list2)
+    wrd_dic_1.update({}.fromkeys(wrd_dic_1,0))
+    wrd_dic_2.update({}.fromkeys(wrd_dic_2,0))
+    full_word_dic = wrd_dic_1 | wrd_dic_2
+    return(full_word_dic)
+### Creates a dictonary contaning keys from two dictonaries, with all values set to 0
+def create_baseline(chrs, full):
+    chrs = char_pre(chrs)
+    a = Counter(chrs)
+    b = Counter(full)
+    add_dict = a + b
+    dict_3 = dict(add_dict)
+    baseline_chrpre = combo | dict_3
+    return baseline_chrpre
+### Returns a dictonary with a % of all characters in a list, it adds keys from another compared list and sets them to 0
+def multiply_dic(new, sample_num):
+    for k,v in new.items():
+        one_over = 1 / sample_num
+        new[k] = v*one_over
+        new_multiplied = new
+    return new_multiplied
+### Divides the values of a dictionary by a sample_num
+def multiply_dic2(new, sample_num):
+    for k,v in new.items():
+        new[k] = v*sample_num
+        new_multiplied = new
+    return new_multiplied
+### multiplies the values of a dictionary by a sample_num
+def create_json(new_json, filename):
+    j = json.dumps(new_json)
+    with open(filename, "w") as f:
+        f.write(j)
+        f.close()
+###Creates new Json
+def create_baseline_dict(dict1, dict2):
+    base = dict1 | dict2
+    base.update({}.fromkeys(base,0))
+    print(base)
+    return(base)
+###Created a dictonary containing keys from 2 dictonaries then sets all values to 0
+def merge_dictionaries(dict1, dict2):
+    merged_dictionary = {}
+
+    for key in dict1:
+        if key in dict2:
+            new_value = dict1[key] + dict2[key]
+        else:
+            new_value = dict1[key]
+
+        merged_dictionary[key] = new_value
+
+    for key in dict2:
+        if key not in merged_dictionary:
+            merged_dictionary[key] = dict2[key]
+    return merged_dictionary
+###Adds 2 dictonaries values 
+def weighted_avg_of_dic(dictweighted, dictnew, weight):
+    weighted = multiply_dic2(dictweighted, weight)
+    added_dic = merge_dictionaries(weighted, dictnew)
+    we_plus_one = weight + 1
+    wavg = multiply_dic(added_dic, we_plus_one)
+    return wavg
+### Gives a new weighted average of two dict
+def wgt_avg_nums(weighted, new, weight):
+    multi = weighted * weight
+    tot = multi + new
+    div = weight + 1 
+    avg = tot / div
+    return avg
+### Gives a weighted average of two numbers 
+def add_ending(lis):
+    end_list = [" ", ":", ",", ";", "!", "?"]
+    fin_concat = []
+    for i in range(len(end_list)):
+        new_concat = []
+        end = end_list[i]
+        for e in range(len(lis)):
+            newlist = []
+            newpart = [" " + lis[e] + end]
+            newlist = newlist + newpart
+            new_concat = new_concat + newlist
+            
+        fin_concat = fin_concat + new_concat
+    print(fin_concat)
+### adds possible endings to words
+def add_linespace(file):
+    with open(file, "r", encoding="utf8") as f:
+                space = [line.rstrip('\n') for line in f]
+    for i in range(len(space)):
+        space[i] = " " + space[i]
+    textfile = open(file, "w", encoding="utf8")
+    for element in space:
+        textfile.write(element + "\n")
+    print(space)
+    return space
+### Adds a space before every line in a text file
+def add_linespace_2(file):
+    with open(file, "r", encoding="utf8") as f:
+                space = [line.rstrip('\n') for line in f]
+    for i in range(len(space)):
+        space[i] = space[i] + " "
+    textfile = open("C:\Python Projects\Text dump", "a", encoding="utf8")
+    for element in space:
+        textfile.write(element + "\n")
+    return space 
+### Changes all of a text file
+#add_linespace_2("C:\Python Projects\english.txt")
+### Takes two dictonaries and a weight for the first and returns a weighted average dictonary
+
+if(1==2):
+    wrd_len_diff = abs(avglen(breakup(lines)) - avglen(breakup(lines2)))
+    word_list = breakup(lines)
+    word_list2 = breakup(lines2)
+    combo = combine_zero_dic(word_list, word_list2)
+    base = create_baseline(word_list, combo)
+    base2 = create_baseline(word_list2, combo)
+    for key in base:
+        if key in base2:
+            base[key] = base[key] - base2[key]
+        else:
+            pass
+    for i in base:
+        base[i] = abs(base[i])
+    sum_score  = base.values()
+    score = sum(sum_score)*100
+
+    wwl = 1
+    wcp = .05
+    weight_score_wcp = score*wcp 
+    weight_score_wwl = wrd_len_diff*wwl
+
+    fin_weight_score = weight_score_wcp + weight_score_wwl
+    dict_dump = (char_pre(word_list))        
+    filename = "dict_dump_test"
+    create_json(dict_dump, filename)
+    cur_test_dic_dump = json.load(open("C:\Python Projects\dict_dump_test"))
+    sample_num = 100
+    multiply_dic(cur_test_dic_dump, sample_num)
+else:
+    pass
+Dstats_Json = json.load(open("C:\Python Projects\DWGjson"))
+
+sam_num_json = Dstats_Json
+print("Press t to test a sample text for identification")
+print("press f to add a F Scott Fitzgerald text")
+part_two_input = input("Press d to add a sapmple for Dickens ")
+
+if(part_two_input == "d"):
+    if(sam_num_json == 0):
+        with open("Text_Reading\Text_Dickens.txt", encoding="utf8") as df:
+            Dickens_text = [line.rstrip('\n') for line in df]
+        first_d_json = char_pre(Dickens_text)
+        create_json(first_d_json, "DCPjson")
+        
+        dic_wl_avg = avglen(breakup(Dickens_text))
+        dic_new_stat = 1
+        d1 = json.dumps(dic_new_stat)
+        with open("C:\Python Projects\DWGjson", "w") as f:
+            f.write(d1)
+            f.close()
+        
+    else:
+        with open("Text_Reading\Text_Dickens.txt", encoding="utf8") as df:
+            Dickens_text = [line.rstrip('\n') for line in df]
+        new_dtext = char_pre(Dickens_text)
+        dweighted_Json = json.load(open("DCPjson"))
+        updated_dic = weighted_avg_of_dic(dweighted_Json, new_dtext, sam_num_json)
+        create_json(updated_dic, "DCPjson")
+        
+        sample_plus = sam_num_json +1
+        
+        dic_new_stat = sample_plus
+        d1 = json.dumps(dic_new_stat)
+        with open("C:\Python Projects\DWGjson", "w") as f:
+            f.write(d1)
+            f.close()
+else:
+    pass
+
+
+def tense_ratio(text_tense_test):
+    file = open(text_tense_test, "r", encoding="utf8")
+    data = file.read()
+
+    first_tense_words = [" I", " Me", " Mine", " Our", " Ours", " Us", " We", " me", " mine", " our", " ours", " us", " we"]
+
+    ftlen = len(first_tense_words)
+    ftcount = 0
+    for i in range(ftlen):
+        ftcount = ftcount + data.count(first_tense_words[i])
+        
+    second_tense_words = [" You", " Your", " Yours", " you", " your", " yours"]
+    stlen = len(second_tense_words)
+    stcount = 0
+    for i in range(stlen):
+        stcount = stcount + data.count(second_tense_words[i])
+
+    third_tense_words = [" He", " Him", " She", " Her", " His", " Hers", " It", " Its", " They", " Them", " Their", " Theirs", " he", " him", " she", " her", " his", " hers", " it", " its", " they", " them", " their", " theirs"]
+    ttlen = len(third_tense_words)
+    ttcount = 0
+    for i in range(ttlen):
+        ttcount = ttcount + data.count(third_tense_words[i])
+
+    tot_ten = ftcount + stcount + ttcount
+    f_ratio = ftcount / tot_ten
+    s_ratio = stcount / tot_ten
+    t_ratio =  ttcount / tot_ten
+    tense_ratio = [f_ratio, s_ratio , t_ratio]
+    
+    print(tense_ratio)
+    return tense_ratio
+### Finds the ratio to tenses used in the text
+
+def punc_ratio(text_punc_test):
+
+    file = open(text_punc_test, "r", encoding="utf8")
+    data = file.read()
+
+    period = "."
+    period_count = data.count(period)
+
+    exclam = "!"
+    exclam_count = data.count(exclam)
+
+    ques = "?"
+    ques_count = ques.count(ques)
+
+    com = ","
+    com_count = data.count(com)
+
+    semicol = ";"
+    semicol_count = data.count(semicol)
+
+    punc_tot = period_count + exclam_count + ques_count + com_count + semicol_count
+    punc_ratio = {}
+    
+    with open(text_punc_test, encoding="utf8") as df:
+        Dickens_text = [line.rstrip('\n') for line in df]
+        
+    dic_wl_avg = avglen(breakup(Dickens_text))
+    file = open(text_punc_test, "r", encoding="utf8")
+    data = file.read()
+    number_of_characters = len(data)
+    word_numbers = number_of_characters / dic_wl_avg
+    
+    sentence_len = word_numbers / punc_tot
+    
+    punc_ratio =  [period_count/punc_tot, exclam_count/punc_tot, ques_count/punc_tot, com_count/punc_tot, semicol_count/punc_tot, sentence_len]
+    
+    
+    print(punc_ratio)
+    return punc_ratio
+### Gets the ratio of punctuation in a text and the sentence len avg
+
+def common_ratio(test_common_test): 
+
+    with open(test_common_test, encoding="utf8") as lc_dic:
+                dic_lower = [line.rstrip('\n') for line in lc_dic]
+    for i in range(len(dic_lower)):
+        dic_lower[i] = dic_lower[i].lower()
+    textfile = open("C:\Python Projects\Text_Reading\lowercase.txt", "w", encoding="utf8")
+    for element in dic_lower:
+        textfile.write(element + "\n")
+    textfile.close()
+
+    english_list = ["C:\Python Projects\english.txt", "C:\Python Projects\english5000", "C:\Python Projects\english2000.txt", "C:\Python Projects\english500", "C:\Python Projects\english200", "C:\Python Projects\english50", "C:\Python Projects\english20"]
+    en_ls = 0
+    com_ratio = []
+    while(en_ls <= 6):
+        with open(english_list[en_ls], encoding="utf8") as enn:
+                    english = [line.rstrip('\n') for line in enn]
+        enwrd = open("C:\Python Projects\Text_Reading\lowercase.txt", "r", encoding="utf8")
+        data = enwrd.read()
+        english_count = 0
+        for i in range(len(english)):
+            testword = english[i]
+            english_count = data.count(testword) + english_count
+        en_ls = en_ls + 1
+        com_ratio.append(english_count)
+    
+    with open(test_common_test, encoding="utf8") as df:
+        Dickens_text = [line.rstrip('\n') for line in df]
+        
+    dic_wl_avg = avglen(breakup(Dickens_text))
+    file = open(test_common_test, "r", encoding="utf8")
+    data = file.read()
+    number_of_characters = len(data)
+    word_numbers = number_of_characters / dic_wl_avg
+    
+    for i in range(len(com_ratio)):
+        com_ratio[i] = com_ratio[i] / word_numbers
+    textfile.close()
+    
+    print(com_ratio)
+    return com_ratio
+### Gets the ratios of common vs uncommon words  
+
+def word_type_ratio(test_type_text):
+    
+    with open(test_type_text, encoding="utf8") as lc_dic:
+                dic_lower = [line.rstrip('\n') for line in lc_dic]
+    for i in range(len(dic_lower)):
+        dic_lower[i] = dic_lower[i].lower()
+    textfile = open("C:\Python Projects\Text_Reading\lowercase.txt", "w", encoding="utf8")
+    for element in dic_lower:
+        textfile.write(element + "\n")
+    textfile.close()
+
+    english_list = ["C:\Python Projects\list of adjectives.txt", "C:\Python Projects\List of Adverbs.txt", "C:\Python Projects\list of verbs.txt", "C:\Python Projects\list of pronouns.txt"]
+    en_ls = 0
+    com_ratio = []
+    while(en_ls <= 3):
+        with open(english_list[en_ls], encoding="utf8") as enn:
+                    english = [line.rstrip('\n') for line in enn]
+        enwrd = open("C:\Python Projects\Text_Reading\lowercase.txt", "r", encoding="utf8")
+        data = enwrd.read()
+        english_count = 0
+        for i in range(len(english)):
+            testword = english[i]
+            english_count = data.count(testword) + english_count
+        en_ls = en_ls + 1
+        com_ratio.append(english_count)
+    textfile.close()
+    
+    with open(test_type_text, encoding="utf8") as df:
+        Dickens_text = [line.rstrip('\n') for line in df]
+        
+    dic_wl_avg = avglen(breakup(Dickens_text))
+    file = open(test_type_text, "r", encoding="utf8")
+    data = file.read()
+    number_of_characters = len(data)
+    word_numbers = number_of_characters / dic_wl_avg
+    
+    for i in range(len(com_ratio)):
+        com_ratio[i] = com_ratio[i] / word_numbers
+    
+    com_ratio.append(dic_wl_avg)
+    
+    print(com_ratio)
+    return com_ratio
+### Gets ratios for word types and the average word len
+
+def get_stats(file):
+    la = word_type_ratio(file)
+    lb = punc_ratio(file)
+    lc = common_ratio(file)
+    ld = tense_ratio(file)
+    list_data = la + lb + lc + ld
+    
+    print (list_data)
+    return(list_data)
+### gets all stats from a text file other then char%
+
+get_stats("C:\Python Projects\Text_Reading\Text_Dickens.txt")
+
+create_json(get_stats("C:\Python Projects\Text_Reading\Text_Dickens.txt"), "DSSjson")
+
+### Def Weighted average DSS json 
+
+def list_wgt_avg(weighted_json_list, new, weight_json_file):
+    for i in range(len(weighted_json_list)):
+        dwgt_Json = json.load(open(weight_json_file))
+        print("Number of samples = ")
+        print(dwgt_Json)
+        wgtplus = dwgt_Json + 1
+        for i in range(len(weighted_json_list)):
+            weighted_json_list[i] = (weighted_json_list[i]*dwgt_Json + new[i]) / wgtplus
+        print(weighted_json_list)
+        ans = weighted_json_list
+        return ans
+a = [1, 4, 5]
+b = [2, 3, 7]
+list_wgt_avg(a, b, "C:\Python Projects\DWGjson")
+
+###To do^ have above code rewrite json file 
+### Have above 
